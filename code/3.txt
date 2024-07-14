@@ -1,0 +1,52 @@
+Sub FindMinAndFirstOccurrence()
+    Dim ws As Worksheet
+    Dim lastColumn As Long
+    Dim i As Long
+    Dim minValue As Double
+    Dim minRow As Long
+    Dim changeValue As Double
+    Dim changeRow As Long
+    
+    ' 指定工作表
+    Set ws = ThisWorkbook.Sheets("Sheet1") ' 修改为你的工作表名称
+    
+    ' 获取最后一列
+    lastColumn = ws.Cells(1, ws.Columns.Count).End(xlToLeft).Column
+    
+    ' 循环遍历每一列
+    For i = 1 To lastColumn
+        ' 获取第i列的最小值
+        minValue = WorksheetFunction.Min(ws.Range(ws.Cells(1, i), ws.Cells(20000, i)))
+        
+        ' 获取最小值首次出现位置
+        On Error Resume Next
+        minRow = WorksheetFunction.Match(minValue, ws.Range(ws.Cells(1, i), ws.Cells(20000, i)), 0)
+        On Error GoTo 0
+        
+        ' 将最小值放在第20001行
+        ws.Cells(20001, i).Value = minValue
+        
+        ' 将最小值首次出现的位置放在第20002行
+        If minRow > 0 Then
+            ws.Cells(20002, i).Value = minRow
+        Else
+            ws.Cells(20002, i).Value = "N/A" ' 如果未找到，可以设置一个标识值，比如"N/A"
+        End If
+        
+        ' 寻找从后往前数第一个变化的数字及其要发生改变的位置
+        For j = 20000 To 2 Step -1
+            If ws.Cells(j, i).Value <> ws.Cells(j - 1, i).Value Then
+                ' 找到了变化的位置
+                changeValue = ws.Cells(j, i).Value
+                changeRow = j
+                Exit For
+            End If
+        Next j
+        
+        ' 将变化的数字放在第20003行
+        ws.Cells(20003, i).Value = changeValue
+        
+        ' 将变化发生的位置放在第20004行
+        ws.Cells(20004, i).Value = changeRow
+    Next i
+End Sub
